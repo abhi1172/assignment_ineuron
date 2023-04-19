@@ -1,0 +1,214 @@
+create database population_data
+use population_data
+drop table population_cia
+create table population_cia
+(
+`name` varchar(50) not null,
+slug varchar(50) not null,
+`value`  varchar(50),
+date_of_information varchar(50)	,
+ranking	int,
+region varchar(60)
+)
+SET SESSION sql_mode = ''
+LOAD DATA  INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/population_cia.csv'
+INTO TABLE population_cia
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+
+select * from population_cia
+drop table migration_rate
+create table migration_rate
+(
+`name` varchar(50) not null,
+slug varchar(50) not null,
+migration_rate decimal(10,2),
+date_of_information varchar(50)	,
+ranking	int,
+region varchar(60)
+)
+LOAD DATA  INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/migration_rate.csv'
+INTO TABLE migration_rate
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+
+
+
+select * from migration_rate
+
+create table population_growth_rate
+(
+`name` varchar(50) not null,
+slug varchar(50) not null,
+population_growth decimal(10,2),
+date_of_information varchar(50)	,
+ranking	int,
+region varchar(60)
+)
+LOAD DATA  INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/population_grwth_cia.csv'
+INTO TABLE population_growth_rate
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+
+select * from population_growth_rate
+
+create table death_rate
+(
+`name` varchar(50) not null,
+slug varchar(50) not null,
+death_rate decimal(10,2),
+date_of_information varchar(50)	,
+ranking	int,
+region varchar(60)
+)
+LOAD DATA  INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/death_rate.csv'
+INTO TABLE death_rate
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+
+select * from death_rate
+
+create table birth_rate
+(
+`name` varchar(50) not null,
+slug varchar(50) not null,
+birth_rate decimal(10,2),
+date_of_information varchar(50)	,
+ranking	int,
+region varchar(60)
+)
+LOAD DATA  INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/birth_rate_cia.csv'
+INTO TABLE birth_rate
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+
+drop table area
+create table area
+(
+`name` varchar(50) not null,
+slug varchar(50) not null,
+`area` varchar(50),
+date_of_information varchar(50)	,
+ranking	int,
+region varchar(60)
+)
+
+LOAD DATA  INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/area_cia.csv'
+INTO TABLE area
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+
+
+
+
+select * from area
+
+alter table area
+add area_new varchar(50) after area
+
+update  area
+set area_new = replace(`area`,",","") 
+where `name`=`name`
+
+UPDATE Employees set FirstName = REPLACE(FirstName,'^','') where EmployeeID=EmployeeID
+
+alter table  area 
+modify column area_new int
+
+alter table  area 
+drop column slug
+alter table  area 
+drop column date_of_information
+select * from area
+
+select * from area
+select * from population_cia
+select * from `birth_rate`
+select * from `death_rate`
+select * from `migration_rate`
+select * from `population_growth_rate`
+update population_cia
+set `value` = replace(`value`,",","")
+where `name` = `name`
+alter table population_cia
+modify column `value` int 
+ALTER TABLE population_cia 
+RENAME COLUMN `value` TO population
+alter table population_cia
+drop column slug
+alter table population_cia
+drop column date_of_information
+alter table population_cia
+add primary key(name)
+
+alter table area
+add primary key(name)
+SET FOREIGN_KEY_CHECKS=0;
+alter table area
+add foreign key (name) references population_cia(name)
+alter table `birth_rate`
+add foreign key (name) references population_cia(name)
+alter table `death_rate`
+add foreign key (name) references population_cia(name)
+alter table migration_rate
+add foreign key (name) references population_cia(name)
+alter table `population_growth_rate`
+add foreign key (name) references population_cia(name)
+select * from area
+select * from population_cia
+select * from `birth_rate`
+select * from `death_rate`
+select * from `migration_rate`
+select * from `population_growth_rate`
+
+create table population_data_new
+(
+select 
+pop.`name` as country_name , a.area_new as area, pop.region as region,pop.population as total_population,
+br.birth_rate as birth_rate, dr.death_rate as death_rate,
+mr.migration_rate as migration_rate,
+pg.population_growth as population_growth_rate
+from population_cia pop 
+inner join area a on a.name = pop.name
+inner join `birth_rate` br on br.name = pop.name
+inner join `death_rate` dr on dr.name = pop.name
+inner join `migration_rate` mr on mr.name = pop.name
+inner join `population_growth_rate`pg on pg.name = pop.name
+)
+order by total_population desc
+
+select * from population_data_new
+
+-- 1. Which country has the highest population?
+select country_name from population_data_new order by total_population desc limit 1
+
+
+-- 2. Which country has the least number of people? 
+select country_name from population_data_new order by total_population asc limit 1
+
+-- 3. Which country is witnessing the highest population growth?
+select country_name from population_data_new order by population_growth_rate desc limit 1
+
+-- 4. Which country has an extraordinary number for the population?
+select country_name from population_data_new order by total_population desc limit 1
+5. Which is the most densely populated country in the world?
+select country_name from population_data_new order by (total_population/area) desc limit 1
+
+select country_name,(total_population/area) as density , total_population,area from population_data_new
+order by density desc
+
+
+
+
