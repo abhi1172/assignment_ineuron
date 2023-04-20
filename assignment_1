@@ -1,0 +1,102 @@
+create database shopping
+use database shopping
+----------------------------------------------------------------task 1------------------------------------------------------------
+create table if not exists shopping_history
+(
+  product varchar(50) not null,
+  quantity integer not null,
+  unit_ptice integer not null
+)
+insert into shopping_history(product,quantity,unit_ptice) values('milk',3,10);
+insert into shopping_history(product,quantity,unit_ptice) values('bread',7,3);
+insert into shopping_history(product,quantity,unit_ptice) values('bread',5,2);
+insert into shopping_history(product,quantity,unit_ptice) values('eggs',12,6)
+
+
+select * from shopping_history
+
+select product,sum(quantity) as total_quantity  from shopping_history 
+group by 1
+order by 1 desc
+
+
+----------------------------------------------------------------task 2-----------------------------------------------------
+
+create table phones
+(
+  name varchar(20) not null,
+  phone_number integer not null unique
+ 
+)
+
+create table calls
+(
+  id integer not null,
+  caller integer not null,
+  calle integer  not null,
+  duration integer not null,
+  unique(id)
+)
+
+insert into calls(id,caller,calle,duration) values(25,1234,7582,8);
+insert into calls(id,caller,calle,duration) values(7,9999,7582,1);
+insert into calls(id,caller,calle,duration) values(18,9999,3333,4);
+insert into calls(id,caller,calle,duration) values(2,17582,3333,3);
+insert into calls(id,caller,calle,duration) values(3,3333,1234,1);
+insert into calls(id,caller,calle,duration) values(21,3333,1234,1);
+select * from calls
+
+
+select * from phones
+select * from calls
+insert into calls(name, phone_number) values('Jack',1234);
+
+
+alter table calls
+add foreign key(caller) references phones(phone_number)
+
+select p.name,sum(c.duration) as sum_n  from calls c
+inner join phones p
+on c.caller = p.phone_number
+group by 1 
+having  sum_n >=10
+order by 1 desc sum(c.duration) as sum_n
+
+---------------------------------------------------------------------task3----------------------------------------------------------------
+create table transactions
+(amount integer not null,
+ date date not null
+)
+insert into transactions(amount,date) values (1000,'2020-01-06');
+insert into transactions(amount,date) values (-10,'2020-01-14');
+insert into transactions(amount,date) values (-75,'2020-01-20');
+insert into transactions(amount,date) values (-5,'2020-01-25');
+insert into transactions(amount,date) values (-4,'2020-01-29');
+insert into transactions(amount,date) values (2000,'2020-03-10');
+insert into transactions(amount,date) values (-75,'2020-03-12');
+insert into transactions(amount,date) values (-20,'2020-03-15');
+insert into transactions(amount,date) values (40,'2020-03-15');
+insert into transactions(amount,date) values (-50,'2020-03-17');
+insert into transactions(amount,date) values (200,'2020-10-10');
+insert into transactions(amount,date) values (-200,'2020-10-10');count(amount) from transactions group by 1
+having
+select * from transactions
+
+select month(date) as month_of_transaction,
+sum(amount) 
+          as monthly_transactions
+from transactions
+group by 1
+with month_ana as
+(
+select  month(date) as month_of_transaction,sum(amount) as net_tra,
+(case
+    when count(amount)>=3 and sum(amount) >100 then 0
+    else -5
+end) as penalty
+from transactions
+group by 1
+  )
+select sum(month_ana.net_tra) + sum(month_ana.penalty) + (12-count(month_ana.month_of_transaction))*-5 as net_transaction
+ from month_ana
+ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
